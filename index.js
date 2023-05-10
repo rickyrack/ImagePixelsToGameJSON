@@ -1,11 +1,20 @@
 const getPixels = require("get-pixels")
 
-// change this for every image you are converting
+// change width and height for the image you are converting to a map
 const width = 128;
 const height = 100;
 
-const tileTypes = require('tile_types.json');
-const map = {}
+let widthCounter = 0;
+let heightCounter = 0;
+
+const tileSet = require('./tile_set.json');
+const map = {};
+
+//setup for each row in map object
+for (let i = 0; i < height; i++) {
+  map[`row${i}`] = {};
+}
+
 
 getPixels("test2.png", function(err, pixels) {
   if(err) {
@@ -13,24 +22,49 @@ getPixels("test2.png", function(err, pixels) {
     return
   }
   console.log("Got Pixels!")
-  for (let a = 0; a < height; a++) {
-    //row loop
-    const widthCheck = width;
-    for (let b = 0; b < array.length-1; b+4) {
+    for (let i = 0; i < pixels.data.length-1; i+=4) {
       //pixel array rgba loop(1 pixel has 4 values)
-      ifasfaf
       const currentPixel =
-        `${pixels.data[b]}, ${pixels.data[b+1]}, ${pixels.data[b+2]}`;
+        `${pixels.data[i]}, ${pixels.data[i+1]}, ${pixels.data[i+2]}`;
       let currentType = null; //defaults to null if no pixel
-      object.keys(tileTypes).forEach(type => {
-        if(currentPixel == tileTypes.type) {
-          currentType = type;
+      Object.keys(tileSet).forEach(tile => {
+        if(currentPixel == tileSet[tile]) {
+          currentType = tile;
         }
       })
-      map[`row${a}`].
-    }
+      map[`row${heightCounter}`][`${[widthCounter]}, ${heightCounter}`] =
+        {
+          type: currentType,
+          coords: [widthCounter, heightCounter],
+          north: 'test north',
+          east: 'test east',
+          south: 'test south',
+          west: 'test west'
+        }
 
+        if(widthCounter === width-1) {
+          widthCounter = 0;
+          heightCounter++;
+        }
+        else {
+          widthCounter++;
+        }
+    }
+    //console.log(map.row99);
+
+    const fs = require('fs');
+
+// write the map object to a JSON file
+fs.writeFile('map.json', JSON.stringify(map, null, 2), (err) => {
+  if (err) {
+    console.error(err);
+    return;
   }
+  console.log('Map data has been written to map.json');
+});
+
+    console.log('done');
+
     // json data will be utilized somewhere above here
     // the data must show neighboring tiles as well
     // account for no tile although properly placed water should not cause this
