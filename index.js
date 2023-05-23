@@ -1,22 +1,22 @@
-const getPixels = require("get-pixels")
+const getPixels = require("get-pixels");
+const { pixelAdjust } = require("./pixel_adjust");
+
 
 // change width and height for the image you are converting to a map
-const width = 128;
-const height = 100;
+const width = 110;
+const height = 70;
 
 let widthCounter = 0;
-let heightCounter = 0;
 
 const tileSet = require('./tile_set.json');
-const map = {};
+const map = [];
 
-//setup for each row in map object
-for (let i = 0; i < height; i++) {
-  map[`row${i}`] = {};
+//setup for each column in 2d array
+for (let i = 0; i < width; i++) {
+  map[i] = [];
 }
 
-
-getPixels("test2.png", function(err, pixels) {
+getPixels("map_image.png", function(err, pixels) {
   if(err) {
     console.log("Bad image path")
     return
@@ -24,38 +24,39 @@ getPixels("test2.png", function(err, pixels) {
   console.log("Got Pixels!")
     for (let i = 0; i < pixels.data.length-1; i+=4) {
       //pixel array rgba loop(1 pixel has 4 values)
-      const currentPixel =
+      let currentPixel =
         `${pixels.data[i]}, ${pixels.data[i+1]}, ${pixels.data[i+2]}`;
+      currentPixel = pixelAdjust(currentPixel);
       let currentType = null; //defaults to null if no pixel
       Object.keys(tileSet).forEach(tile => {
         if(currentPixel == tileSet[tile]) {
           currentType = tile;
         }
       })
-      map[`row${heightCounter}`][`${[widthCounter]}, ${heightCounter}`] =
-        {
-          type: currentType,
-          coords: [widthCounter, heightCounter],
-          north: 'test north',
-          east: 'test east',
-          south: 'test south',
-          west: 'test west'
-        }
+
+          map[widthCounter].push({
+            type: currentType,
+            coords: [widthCounter, map[widthCounter].length],
+            rgb: currentPixel
+          })
+      
 
         if(widthCounter === width-1) {
           widthCounter = 0;
-          heightCounter++;
         }
         else {
           widthCounter++;
         }
     }
-    //console.log(map.row99);
+
+    const mapData = {
+      map
+    }
 
     const fs = require('fs');
 
 // write the map object to a JSON file
-fs.writeFile('map.json', JSON.stringify(map, null, 2), (err) => {
+fs.writeFile('map.json', JSON.stringify(mapData, null, 2), (err) => {
   if (err) {
     console.error(err);
     return;
