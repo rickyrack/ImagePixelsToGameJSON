@@ -6,8 +6,8 @@ const { pixelAdjust } = require("./pixel_adjust");
 const width = 110;
 const height = 70;
 
-//MAX number of emojis that will represent any given tile type
-const tileEmojis = 2;
+// MAX or more than number of emojis that will represent any given tile type
+const maxEmojis = 10;
 
 let widthCounter = 0;
 
@@ -40,7 +40,7 @@ getPixels("map_image.png", function(err, pixels) {
           map[widthCounter].push({
             type: currentType,
             coords: [widthCounter, map[widthCounter].length],
-            emojiNum: Math.floor(Math.random() * tileEmojis),
+            emojiNum: Math.floor(Math.random() * maxEmojis),
             rgb: currentPixel
           })
       
